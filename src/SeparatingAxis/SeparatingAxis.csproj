@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="MonoGame.Content.Builder" Version="3.7.0.4" />
+        <PackageReference Include="MonoGame.Content.Builder.Linux" Version="3.7.0.3" />
+        <PackageReference Include="MonoGame.Framework.DesktopGL.Core" Version="3.7.0.7" />
+    </ItemGroup>
+    <ItemGroup>
+        <MonoGameContentReference Include="**\*.mgcb" />
+        <MonoGameContentReference Remove="Content\bin\**" />
+        <MonoGameContentReference Remove="Content\obj\**" />
+        <None Remove="Content\bin\**" />
+        <None Remove="Content\obj\**" />
+        <Compile Remove="Content\bin\**" />
+        <Compile Remove="Content\obj\**" />
+        <EmbeddedResource Remove="Content\bin\**" />
+        <EmbeddedResource Remove="Content\obj\**" />
+    </ItemGroup>
+</Project>
