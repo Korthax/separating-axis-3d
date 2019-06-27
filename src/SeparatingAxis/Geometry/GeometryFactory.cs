@@ -70,7 +70,7 @@ namespace SeparatingAxis.Geometry
                 new VertexPositionColor(btmRightBack, colour)
             };
 
-            return new Polyhedron(position, vertices);
+            return Polyhedron.From(position, vertices);
         }
     }
 }
