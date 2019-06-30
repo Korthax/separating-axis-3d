@@ -1,6 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SeparatingAxis.Collisions;
 using SeparatingAxis.Geometry;
 using SeparatingAxis.Input;
 
@@ -60,6 +62,12 @@ namespace SeparatingAxis
             {
                 _cubeOne.Active = false;
                 _cubeTwo.Active = true;
+            }
+
+            if (_inputDetector.IsKeyPressed(Keys.Space))
+            {
+                var result = CollisionDetector.CheckForCollisions(_cubeOne, _cubeTwo);
+                Console.WriteLine(result.ToString());
             }
 
             _inputDetector.Update(gameTime);

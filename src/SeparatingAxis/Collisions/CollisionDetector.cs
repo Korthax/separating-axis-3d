@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using Microsoft.Xna.Framework;
 using SeparatingAxis.Geometry;
 
@@ -11,11 +9,6 @@ namespace SeparatingAxis.Collisions
     {
         public static CollisionResponse CheckForCollisions(Polyhedron polyhedronA, Polyhedron polyhedronB)
         {
-            foreach (var VARIABLE in polyhedronA.FaceNormals)
-            {
-
-            }
-
             if (polyhedronA.Equals(polyhedronB))
                 return CollisionResponse.None;
 
@@ -29,18 +22,17 @@ namespace SeparatingAxis.Collisions
 
         private static CollisionResponse CheckForCollision(Polyhedron polygonA, Polyhedron polygonB)
         {
-            var edgeCountA = polygonA.Edges.Count;
-            var edgeCountB = polygonB.Edges.Count;
             var minIntervalDistance = float.PositiveInfinity;
             var translationAxis = Vector3.Zero;
 
-            var cAxis = new List<Vector3>();
-            cAxis.AddRange(polygonA.FaceNormals);
-            cAxis.AddRange(polygonB.FaceNormals);
-            foreach (var aEdge in polygonA.Edges)
+            var collisionAxes = new List<Vector3>();
+            collisionAxes.AddRange(polygonA.Axes);
+            collisionAxes.AddRange(polygonB.Axes);
+            
+            foreach (var polyAAxes in polygonA.Axes)
             {
-                foreach (var bEdge in polygonB.Edges)
-                    cAxis.Add(Vector3.Cross(aEdge.Direction, bEdge.Direction));
+                foreach (var polyBAxes in polygonB.Axes)
+                    collisionAxes.Add(Vector3.Cross(polyAAxes, polyBAxes));
             }
 
             foreach (var edge in polygonA.Edges)
@@ -88,7 +80,7 @@ namespace SeparatingAxis.Collisions
             max = dotProduct;
             foreach (var point in polygon.Vertices)
             {
-                dotProduct = Vector3.Dot(point.Position, axis);
+                dotProduct = Vector3.Dot(axis, point.Position - polygon.Center);
                 if (dotProduct < min)
                     min = dotProduct;
                 else if (dotProduct > max)

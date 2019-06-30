@@ -13,7 +13,7 @@ namespace SeparatingAxis.Geometry
 
         public VertexPositionColor[] Vertices { get; }
         public Vector3 Position { get; private set; }
-        public HashSet<Vector3> FaceNormals { get; }
+        public HashSet<Vector3> Axes { get; }
         public List<Edge> Edges { get; }
         public bool Active { get; set; }
         public Vector3 Center { get; set; }
@@ -22,12 +22,21 @@ namespace SeparatingAxis.Geometry
         {
             var potentialEdges = new Dictionary<Edge, HashSet<Vector3>>();
 
+            var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+
+            var centre = Vector3.Zero;
+            
             var faceNormals = new HashSet<Vector3>();
             for (var i = 0; i < vertices.Length; i += 3)
             {
                 var u = vertices[i + 1].Position - vertices[i].Position;
                 var v = vertices[i + 2].Position - vertices[i].Position;
 
+                centre += vertices[i].Position;
+                centre += vertices[i + 1].Position;
+                centre += vertices[i + 2].Position;
+                
                 var normal = Vector3.Normalize(Vector3.Cross(v, u));
 
                 AddFaceNormal(faceNormals, normal);
@@ -46,7 +55,7 @@ namespace SeparatingAxis.Geometry
                 .Select(x => x.Key)
                 .ToList();
 
-            return new Polyhedron(position, vertices, edges, faceNormals);
+            return new Polyhedron(position, vertices, edges, faceNormals, position + centre / vertices.Length);
         }
 
         private static void AddFaceNormalToEdges(IDictionary<Edge, HashSet<Vector3>> edges, Edge edge, Vector3 faceNormal)
@@ -71,9 +80,11 @@ namespace SeparatingAxis.Geometry
             edges.Add(faceNormal);
         }
 
-        private Polyhedron(Vector3 position, VertexPositionColor[] vertices, List<Edge> edges, HashSet<Vector3> faceNormals)
+        private Polyhedron(Vector3 position, VertexPositionColor[] vertices, List<Edge> edges, HashSet<Vector3> axes,
+            Vector3 center)
         {
-            FaceNormals = faceNormals;
+            Axes = axes;
+            Center = center;
             Position = position;
             Vertices = vertices;
             Edges = edges;
