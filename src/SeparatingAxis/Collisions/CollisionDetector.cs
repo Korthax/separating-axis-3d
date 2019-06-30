@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using Microsoft.Xna.Framework;
 using SeparatingAxis.Geometry;
 
@@ -8,6 +11,11 @@ namespace SeparatingAxis.Collisions
     {
         public static CollisionResponse CheckForCollisions(Polyhedron polyhedronA, Polyhedron polyhedronB)
         {
+            foreach (var VARIABLE in polyhedronA.FaceNormals)
+            {
+
+            }
+
             if (polyhedronA.Equals(polyhedronB))
                 return CollisionResponse.None;
 
@@ -24,13 +32,20 @@ namespace SeparatingAxis.Collisions
             var edgeCountA = polygonA.Edges.Count;
             var edgeCountB = polygonB.Edges.Count;
             var minIntervalDistance = float.PositiveInfinity;
-            var translationAxis = new Vector2();
+            var translationAxis = Vector3.Zero;
 
-            for (var edgeIndex = 0; edgeIndex < edgeCountA + edgeCountB; edgeIndex++)
+            var cAxis = new List<Vector3>();
+            cAxis.AddRange(polygonA.FaceNormals);
+            cAxis.AddRange(polygonB.FaceNormals);
+            foreach (var aEdge in polygonA.Edges)
             {
-                var edge = edgeIndex < edgeCountA ? polygonA.Edges[edgeIndex] : polygonB.Edges[edgeIndex - edgeCountA];
+                foreach (var bEdge in polygonB.Edges)
+                    cAxis.Add(Vector3.Cross(aEdge.Direction, bEdge.Direction));
+            }
 
-                var axis = Vector2.Normalize(new Vector2(-edge.Y, edge.X));
+            foreach (var edge in polygonA.Edges)
+            {
+                var axis = Vector3.Cross(edge.Direction,  edge.Direction);
 
                 float minA = 0;
                 float minB = 0;
@@ -52,7 +67,7 @@ namespace SeparatingAxis.Collisions
                 translationAxis = axis;
 
                 var distance = polygonA.Center - polygonB.Center;
-                if (distance.DotProduct(translationAxis) < 0)
+                if (Vector3.Dot(distance, translationAxis) < 0)
                     translationAxis = -translationAxis;
             }
 
@@ -66,19 +81,24 @@ namespace SeparatingAxis.Collisions
             return minA - maxB;
         }
 
-        private static void ProjectPolygon(Vector2 axis, Polyhedron polygon, ref float min, ref float max)
+        private static void ProjectPolygon(Vector3 axis, Polyhedron polygon, ref float min, ref float max)
         {
-            var dotProduct = axis.DotProduct(polygon.Vertices[0].Position);
+            var dotProduct = Vector3.Dot(axis, polygon.Vertices[0].Position);
             min = dotProduct;
             max = dotProduct;
             foreach (var point in polygon.Vertices)
             {
-                dotProduct = point.Position.DotProduct(axis);
+                dotProduct = Vector3.Dot(point.Position, axis);
                 if (dotProduct < min)
                     min = dotProduct;
                 else if (dotProduct > max)
                     max = dotProduct;
             }
+        }
+
+        public static void T()
+        {
+
         }
     }
 }
