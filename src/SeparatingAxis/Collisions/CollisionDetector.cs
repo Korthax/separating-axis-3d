@@ -28,21 +28,21 @@ namespace SeparatingAxis.Collisions
             var collisionAxes = new List<Vector3>();
             collisionAxes.AddRange(polygonA.Axes);
             collisionAxes.AddRange(polygonB.Axes);
-            
+
             foreach (var polyAAxes in polygonA.Axes)
             {
                 foreach (var polyBAxes in polygonB.Axes)
                     collisionAxes.Add(Vector3.Cross(polyAAxes, polyBAxes));
             }
 
-            foreach (var edge in polygonA.Edges)
+            foreach (var c in collisionAxes)
             {
-                var axis = Vector3.Cross(edge.Direction,  edge.Direction);
-
                 float minA = 0;
                 float minB = 0;
                 float maxA = 0;
                 float maxB = 0;
+
+                var axis = Vector3.Negate(c);
 
                 ProjectPolygon(axis, polygonA, ref minA, ref maxA);
                 ProjectPolygon(axis, polygonB, ref minB, ref maxB);
@@ -75,12 +75,12 @@ namespace SeparatingAxis.Collisions
 
         private static void ProjectPolygon(Vector3 axis, Polyhedron polygon, ref float min, ref float max)
         {
-            var dotProduct = Vector3.Dot(axis, polygon.Vertices[0].Position);
+            var dotProduct = Vector3.Dot(polygon.Vertices[0].Position + polygon.Position, axis);
             min = dotProduct;
             max = dotProduct;
             foreach (var point in polygon.Vertices)
             {
-                dotProduct = Vector3.Dot(axis, point.Position - polygon.Center);
+                dotProduct = Vector3.Dot(point.Position + polygon.Position, axis);
                 if (dotProduct < min)
                     min = dotProduct;
                 else if (dotProduct > max)
