@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using SeparatingAxis.Geometry;
 
 namespace SeparatingAxis.Collisions
@@ -37,6 +38,7 @@ namespace SeparatingAxis.Collisions
 
             foreach (var c in collisionAxes)
             {
+
                 float minA = 0;
                 float minB = 0;
                 float maxA = 0;
@@ -91,6 +93,20 @@ namespace SeparatingAxis.Collisions
         public static void T()
         {
 
+        }
+
+        public static Polyhedron CreateMinkowskiDifference(Polyhedron a, Polyhedron b, Color colour)
+        {
+            var vertices = new List<VertexPositionColor>();
+
+            foreach (var aVertex in a.Vertices)
+            {
+                foreach (var bVertex in b.Vertices)
+                    vertices.Add(new VertexPositionColor(aVertex.Position - bVertex.Position, colour));
+            }
+
+
+            return Polyhedron.From(a.Position, vertices.ToArray());
         }
     }
 }

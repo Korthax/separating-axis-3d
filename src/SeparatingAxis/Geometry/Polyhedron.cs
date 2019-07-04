@@ -16,34 +16,44 @@ namespace SeparatingAxis.Geometry
         public HashSet<Vector3> Axes { get; }
         public List<Edge> Edges { get; }
         public bool Active { get; set; }
-        public Vector3 Center { get; set; }
+        public Vector3 Center { get; }
+        public Vector3 HalfSize => Size / 2;
+        public Vector3 Size { get; }
 
         public static Polyhedron From(Vector3 position, params VertexPositionColor[] vertices)
         {
             var potentialEdges = new Dictionary<Edge, HashSet<Vector3>>();
 
+            var centre = Vector3.Zero;
+
             var min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
             var max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
 
-            var centre = Vector3.Zero;
-            
             var faceNormals = new HashSet<Vector3>();
             for (var i = 0; i < vertices.Length; i += 3)
             {
-                var u = vertices[i + 1].Position - vertices[i].Position;
-                var v = vertices[i + 2].Position - vertices[i].Position;
+                var a = vertices[i];
+                var b = vertices[i + 1];
+                var c = vertices[i + 2];
 
-                centre += vertices[i].Position;
-                centre += vertices[i + 1].Position;
-                centre += vertices[i + 2].Position;
-                
+                SetMinMax(a.Position, ref min, ref max);
+                SetMinMax(b.Position, ref min, ref max);
+                SetMinMax(c.Position, ref min, ref max);
+
+                var u = b.Position - a.Position;
+                var v = c.Position - a.Position;
+
+                centre += a.Position;
+                centre += b.Position;
+                centre += c.Position;
+
                 var normal = Vector3.Normalize(Vector3.Cross(v, u));
 
                 AddFaceNormal(faceNormals, normal);
 
-                var edge1 = Edge.From(vertices[i].Position, vertices[i + 1].Position);
-                var edge2 = Edge.From(vertices[i + 1].Position, vertices[i + 2].Position);
-                var edge3 = Edge.From(vertices[i + 2].Position, vertices[i].Position);
+                var edge1 = Edge.From(a.Position, b.Position);
+                var edge2 = Edge.From(b.Position, c.Position);
+                var edge3 = Edge.From(c.Position, a.Position);
 
                 AddFaceNormalToEdges(potentialEdges, edge1, normal);
                 AddFaceNormalToEdges(potentialEdges, edge2, normal);
@@ -55,7 +65,28 @@ namespace SeparatingAxis.Geometry
                 .Select(x => x.Key)
                 .ToList();
 
-            return new Polyhedron(position, vertices, edges, faceNormals, position + centre / vertices.Length);
+            return new Polyhedron(position, vertices, edges, faceNormals, centre / vertices.Length, max - min);
+        }
+
+        private static void SetMinMax(Vector3 a, ref Vector3 min, ref Vector3 max)
+        {
+            if (a.X < min.X)
+                min.X = a.X;
+
+            if (a.Y < min.Y)
+                min.Y = a.Y;
+
+            if (a.Z < min.Z)
+                min.Z = a.Z;
+
+            if (a.X > max.X)
+                max.X = a.X;
+
+            if (a.Y > max.Y)
+                max.Y = a.Y;
+
+            if (a.Z > max.Z)
+                max.Z = a.Z;
         }
 
         private static void AddFaceNormalToEdges(IDictionary<Edge, HashSet<Vector3>> edges, Edge edge, Vector3 faceNormal)
@@ -81,10 +112,11 @@ namespace SeparatingAxis.Geometry
         }
 
         private Polyhedron(Vector3 position, VertexPositionColor[] vertices, List<Edge> edges, HashSet<Vector3> axes,
-            Vector3 center)
+            Vector3 center, Vector3 size)
         {
             Axes = axes;
             Center = center;
+            Size = size;
             Position = position;
             Vertices = vertices;
             Edges = edges;

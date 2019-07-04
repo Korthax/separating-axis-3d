@@ -11,6 +11,7 @@ namespace SeparatingAxis
     public class Game1 : Game
     {
         private readonly GraphicsDeviceManager _graphics;
+        private Polyhedron _minkowskiDifference;
         private InputDetector _inputDetector;
         private BasicEffect _basicEffect;
         private Polyhedron _cubeOne;
@@ -37,7 +38,7 @@ namespace SeparatingAxis
             _basicEffect = new BasicEffect(_graphics.GraphicsDevice);
 
             _cubeOne = GeometryFactory.CreateCube(new Vector3(0, 0, 0), new Vector3(1, 1, 1), Color.Red);
-            _cubeTwo = GeometryFactory.CreateCube(new Vector3(2, 0, 0), new Vector3(1, 1, 1), Color.Blue);
+            _cubeTwo = GeometryFactory.CreatePyramid(new Vector3(2, 0, 0), new Vector3(2, 2, 2), Color.Blue);
 
             _graphics.GraphicsDevice.RasterizerState = new RasterizerState
             {
@@ -70,6 +71,13 @@ namespace SeparatingAxis
                 Console.WriteLine(result.ToString());
             }
 
+
+            if (_inputDetector.IsKeyPressed(Keys.M))
+                _minkowskiDifference = CollisionDetector.CreateMinkowskiDifference(_cubeOne, _cubeTwo, Color.Green);
+
+            if (_inputDetector.IsKeyPressed(Keys.N))
+                _minkowskiDifference = null;
+
             _inputDetector.Update(gameTime);
             _camera.Update(gameTime, _inputDetector);
             _cubeOne.Update(gameTime, _inputDetector);
@@ -89,6 +97,7 @@ namespace SeparatingAxis
 
             _cubeOne.Render(GraphicsDevice, _basicEffect);
             _cubeTwo.Render(GraphicsDevice, _basicEffect);
+            _minkowskiDifference?.Render(GraphicsDevice, _basicEffect);
 
             base.Draw(gameTime);
         }

@@ -72,5 +72,50 @@ namespace SeparatingAxis.Geometry
 
             return Polyhedron.From(position, vertices);
         }
+
+        public static Polyhedron CreatePyramid(Vector3 position, Vector3 size, Color colour)
+        {
+            // Calculate the position of the vertices on the top face.
+            var top = new Vector3(0.5f, 1, 0.5f) * size;
+
+            // Calculate the position of the vertices on the bottom face.
+            var btmLeftFront = new Vector3(0, 0, 0) * size;
+            var btmLeftBack = new Vector3(0, 0, 1) * size;
+            var btmRightFront = new Vector3(1, 0, 0) * size;
+            var btmRightBack = new Vector3(1, 0, 1) * size;
+
+            var vertices = new[]
+            {
+                // Add the vertices for the FRONT face.
+                new VertexPositionColor(top, colour),
+                new VertexPositionColor(btmLeftFront, colour),
+                new VertexPositionColor(btmRightFront, colour),
+
+                // Add the vertices for the BACK face.
+                new VertexPositionColor(top, colour),
+                new VertexPositionColor(btmLeftBack, colour),
+                new VertexPositionColor(btmRightBack, colour),
+
+                // Add the vertices for the BOTTOM face.
+                new VertexPositionColor(btmLeftFront, colour),
+                new VertexPositionColor(btmLeftBack, colour),
+                new VertexPositionColor(btmRightBack, colour),
+                new VertexPositionColor(btmLeftFront, colour),
+                new VertexPositionColor(btmRightBack, colour),
+                new VertexPositionColor(btmRightFront, colour),
+
+                // Add the vertices for the LEFT face.
+                new VertexPositionColor(top, colour),
+                new VertexPositionColor(btmLeftBack, colour),
+                new VertexPositionColor(btmLeftFront, colour),
+
+                // Add the vertices for the RIGHT face.
+                new VertexPositionColor(top, colour),
+                new VertexPositionColor(btmRightFront, colour),
+                new VertexPositionColor(btmRightBack, colour)
+            };
+
+            return Polyhedron.From(position, vertices);
+        }
     }
 }
